@@ -66,5 +66,23 @@ module.exports = function(pool){
   })
 
   // READ
+  router.get('/', (req, res) => {
+    let sql =
+    `SELECT product.id, product.name, product.description, category.category_name, image.image_file, image.image_name, product.enable, image.image_enable, category.category_enable
+    FROM product
+    INNER JOIN category_product ON category_product.id_product = product.id
+    INNER JOIN category ON category.category_id = category_product.id_category
+    INNER JOIN product_image ON product_image.product_id = product.id
+    INNER JOIN image ON image.id = product_image.image_id`;
+    pool.query(sql).then( listProduct =>{
+      res.json({
+        Data: listProduct.rows
+      })
+    }).catch(err => {
+      res.json({error: true,
+      message: `something went wrong : ${err.message}`
+      })
+    })
+  })
   return router;
 }
