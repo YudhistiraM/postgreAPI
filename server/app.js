@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
+const fileUpload = require('express-fileupload');
 
 const{ Pool, Client } = require('pg');
 
@@ -38,6 +39,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(fileUpload());
+app.use(express.static(__dirname));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
