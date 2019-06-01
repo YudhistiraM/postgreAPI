@@ -84,5 +84,50 @@ module.exports = function(pool){
       })
     })
   })
+
+  // DELETE
+  router.delete('/delete/:id', (req, res) => {
+      let id = req.params.id;
+
+      let sql =`SELECT id_category FROM category_product WHERE id_product = ${id}`;
+      pool.query(sql, (err, idCategory) => {
+        if(idCategory.rowCount == 0){
+          res.json({
+            success: false,
+            message: `Deleted failed id : ${id} not found`,
+            data:null
+          })
+        }else{
+          let sql2 = `SELECT image_id FROM product_image WHERE product_id = ${id}`;
+          pool.query(sql2, (err, idImage) => {
+            let sql3 = `DELETE FROM category_product WHERE id_product = ${id}`;
+            pool.query(sql3, (err) => {
+              let sql4 = `DELETE FROM product_image WHERE product_id = ${id}`;
+              pool.query(sql4,(err) =>{
+                let sql5 = `DELETE FROM category WHERE category_id = ${idCategory.rows[0].id_category}`;
+                pool.query(sql5, (err) => {
+                  let sql6 = `DELETE FROM image WHERE id = ${idImage.rows[0].image_id}`;
+                  pool.query(sql6, (err) =>{
+                    let sql7 = `DELETE FROM product WHERE id = ${id}`;
+                    pool.query(sql7).then(() => {
+                        res.json({
+                            success: true,
+                            message: "Data Deleted",
+                          })
+                      }).catch( err => {
+                        res.json({
+                          success: false,
+                          message: "Deleted has been failed",
+                        })
+                      })
+                    })
+                  })
+                })
+              })
+            })
+          }
+        })
+      })
+      
   return router;
 }
