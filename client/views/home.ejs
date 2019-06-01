@@ -143,7 +143,7 @@
      }
      // console.log('Data : ', 'form')
     // var formAction = form.attr('action');
-
+    if (id == "") {
       $.ajax({
       url         : 'http://localhost:3000/api/product/',
       data        : formdata ? formdata : form.serialize(),
@@ -155,6 +155,19 @@
       getData();
           }
        });
+    } else {
+      $.ajax({
+      url         : 'http://localhost:3000/api/product/' + id,
+      data        : formdata ? formdata : form.serialize(),
+      cache       : false,
+      contentType : false,
+      processData : false,
+      type        : 'PUT',
+      success     : function(data, textStatus, jqXHR){
+      getData();
+          }
+       });
+    }
      $( '#add-form2' ).each(function(){
        this.reset();
       });
@@ -193,6 +206,22 @@
     })
     $('table tbody').html(trHTML)
   }
+
+  // Edit
+  $('table tbody').on('click', '.editBtn', function(){
+    $('#inputProduct').val($(this).attr('containname'));
+    $('#inputProductDesc').val($(this).attr('containdesc'));
+    enableProduct = $(this).attr('containpe');
+    $('#booleanProduct').val(enableProduct);
+    $('#userFile').val();
+    enableImage = $(this).attr('containie');
+    $('#booleanImage').val(enableImage);
+    $('#inputCategory').val($(this).attr('containcp'));
+    enableCategory = $(this).attr('containcpe');
+    $('#booleanCategory').val(enableCategory);
+    id = $(this).attr('containid');
+    $("#add-form").show();
+  })
 
   // Delete
   $('table tbody').on('click', '.deleteBtn', function(){
