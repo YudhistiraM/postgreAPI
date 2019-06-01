@@ -120,5 +120,81 @@
 
     </div>
   </div>
+  <script>
+  let id ="";
+  $(document).ready(function(){
+    $('#add-form').hide();
+    getData();
+  })
+
+  $('#add-btn').click(function(e){
+    $('#add-form').toggle();
+    $( '#add-form2' ).each(function(){
+      this.reset();
+     });
+  })
+
+  $('#add-form2').submit(function(e){
+    e.preventDefault();
+    var form = $(this);
+    var formdata = false;
+    if (window.FormData){
+       formdata = new FormData(form[0]);
+     }
+     // console.log('Data : ', 'form')
+    // var formAction = form.attr('action');
+
+      $.ajax({
+      url         : 'http://localhost:3000/api/product/',
+      data        : formdata ? formdata : form.serialize(),
+      cache       : false,
+      contentType : false,
+      processData : false,
+      type        : 'POST',
+      success     : function(data, textStatus, jqXHR){
+      getData();
+          }
+       });
+     $( '#add-form2' ).each(function(){
+       this.reset();
+      });
+     $('#add-form').hide();
+  });
+
+  // Read
+  function getData(){
+    $.ajax({
+      url: 'http://localhost:3000/api/product/',
+      method: "GET"
+    }).done( dataProduct =>{
+      let data = dataProduct.Data;
+      // console.log("Data Product :", data);
+      showTable(data);
+    })
+  }
+
+  function showTable(add){
+    let no = 0;
+    var trHTML = '';
+    add.forEach(data => {
+      // let containpe = data.enable;
+      // console.log("Data Detail INI:", data);
+      no++;
+      trHTML += '<tr>';
+      trHTML += `<td>${no}</td>`;
+      trHTML += `<td>${data.name}</td>`;
+      trHTML += `<td>${data.description}</td>`;
+      trHTML += `<td>${data.category_name}</td>`;
+      trHTML += `<td>`
+      trHTML += `<button class="editBtn btn btn-success" containid="${data.id}" containname="${data.name}" containdesc="${data.description}" containpe="${data.enable}" containimage="${data.image_file}" containie="${data.image_enable}" containcp="${data.category_name}" containcpe="${data.category_enable}"><span class="glyphicon glyphicon-pencil"> Edit </span></button>`;
+      trHTML += `<button class="deleteBtn btn btn-danger" containid="${data.id}"><span class="glyphicon glyphicon-trash"> Delete </span></button>`;
+      trHTML += `</td>`;
+      trHTML += `</tr>`;
+    })
+    $('table tbody').html(trHTML)
+  }
+
+
+  </script>
 </body>
 </html>
