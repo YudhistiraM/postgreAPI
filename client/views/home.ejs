@@ -194,6 +194,18 @@
     $('table tbody').html(trHTML)
   }
 
+  // Delete
+  $('table tbody').on('click', '.deleteBtn', function(){
+    let confirmData = confirm("Are you sure want to delete this data?");
+    if(confirmData){
+      $.ajax({
+        url: 'http://localhost:3000/api/product/delete/' + $(this).attr('containid'),
+        method: 'DELETE'
+      }).done(data => {
+        getData();
+      })
+    }
+  })
 
   </script>
 </body>
