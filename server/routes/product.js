@@ -85,6 +85,9 @@ module.exports = function(pool){
     })
   })
 
+  //UPDATE
+
+
   // DELETE
   router.delete('/delete/:id', (req, res) => {
       let id = req.params.id;
@@ -128,6 +131,6 @@ module.exports = function(pool){
           }
         })
       })
-      
+
   return router;
 }
