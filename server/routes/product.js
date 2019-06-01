@@ -85,56 +85,74 @@ module.exports = function(pool){
     })
   })
 
-  //UPDATE
+  // UPDATE
   router.put('/:id', (req,res) =>{
-    let id = req.params.id;
-    let data ={
-      productName : req.body.productName,
-      productDesc : req.body.productDesc,
-      productEnable: req.body.productEnable,
-      categoryName: req.body.categoryName,
-      categoryEnable: req.body.categoryEnable,
-      imageEnable: req.body.imageEnable
-    }
+  let id = req.params.id;
+  let data ={
+    productName : req.body.productName,
+    productDesc : req.body.productDesc,
+    productEnable: req.body.productEnable,
+    categoryName: req.body.categoryName,
+    categoryEnable: req.body.categoryEnable,
+    imageEnable: req.body.imageEnable
+  }
 
-    let sql =`UPDATE product SET name='${data.productName}', description='${data.productDesc}', enable='${data.productEnable}'
-    WHERE product.id = ${id} RETURNING *`;
-    pool.query(sql, (err, updateProduct) => {
-        let sql2 =`SELECT id_category FROM category_product WHERE id_product = ${id}`;
-        pool.query(sql2, (err, listCategory) => {
-          // console.log("List :", listCategory.rows[0].id_category);
-          let sql3 =`UPDATE category SET category_name='${data.categoryName}', category_enable='${data.categoryEnable}'
-          WHERE category.category_id = ${listCategory.rows[0].id_category} RETURNING *`;
-          pool.query(sql3, (err, updateCategory) =>{
-            let sql4 = `SELECT image_id FROM product_image WHERE product_id = ${id}`;
-            pool.query(sql4, (err, listImage) => {
-              let sql5 =`UPDATE image SET image_name='${imageName}', image_file='${fileImage.name}', image_enable= '${data.imageEnable}'
-              WHERE image.id= ${listImage.rows[0].image_id}`;
-              pool.query(sql5).then(() => {
-                    res.json({
-                      success: true,
-                      message: "Data Has been updated",
-                      data:{
-                        productName : updateProduct.rows[0].name,
-                        descriptionProduct : updateProduct.rows[0].description,
-                        productCategory : updateCategory.rows[0].category_name,
-                        productImage : `${fileImage.name}`
-                      }
-                    })
-              }).catch( err => {
-                res.json({
-                  success: false,
-                  message: "updating data has been failed",
-                  data:null
-                })
+  // Upload File
+  let fileImage = req.files.doc;
+  let imageName = `${data.productName}` + '-' + fileImage.name;
+
+  fileImage.mv(path.join(__dirname, '../public/upload/') + imageName, function(err) {
+    if(err){
+      console.log(err);
+    }else{
+      console.log("Uploaded");
+    }
+  });
+
+  let sql =`UPDATE product SET name='${data.productName}', description='${data.productDesc}', enable='${data.productEnable}'
+  WHERE product.id = ${id} RETURNING *`;
+  pool.query(sql, (err, updateProduct) => {
+    if(updateProduct.rowCount === 0){
+      res.json({
+        success: false,
+        message: `Updating data has been failed id : ${id} not found`,
+        data:null
+      })
+    }else{
+      let sql2 =`SELECT id_category FROM category_product WHERE id_product = ${id}`;
+      pool.query(sql2, (err, listCategory) => {
+        // console.log("List :", listCategory.rows[0].id_category);
+        let sql3 =`UPDATE category SET category_name='${data.categoryName}', category_enable='${data.categoryEnable}'
+        WHERE category.category_id = ${listCategory.rows[0].id_category} RETURNING *`;
+        pool.query(sql3, (err, updateCategory) =>{
+          let sql4 = `SELECT image_id FROM product_image WHERE product_id = ${id}`;
+          pool.query(sql4, (err, listImage) => {
+            let sql5 =`UPDATE image SET image_name='${imageName}', image_file='${fileImage.name}', image_enable= '${data.imageEnable}'
+            WHERE image.id= ${listImage.rows[0].image_id}`;
+            pool.query(sql5).then(() => {
+                  res.json({
+                    success: true,
+                    message: "Data Has been updated",
+                    data:{
+                      productName : updateProduct.rows[0].name,
+                      descriptionProduct : updateProduct.rows[0].description,
+                      productCategory : updateCategory.rows[0].category_name,
+                      productImage : `${fileImage.name}`
+                    }
+                  })
+            }).catch( err => {
+              res.json({
+                success: false,
+                message: "updating data has been failed",
+                data:null
               })
             })
           })
         })
       })
-    })
+    }
   })
-
+})
 
   // DELETE
   router.delete('/delete/:id', (req, res) => {
