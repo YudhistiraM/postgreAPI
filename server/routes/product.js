@@ -86,6 +86,9 @@ module.exports = function(pool){
   })
 
   //UPDATE
+  router.put('/:id', (req,res) =>{
+
+  })
 
 
   // DELETE
